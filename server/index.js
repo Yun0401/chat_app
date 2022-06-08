@@ -32,8 +32,8 @@ io.on("connection",(socket)=>{
         //     stri += String.fromCharCode(n);
         // }
         // data.message = stri;
-        // socket.to(data.room).emit("receive_message",data);
-        socket.emit("receive_message",data);
+        socket.to(data.room).emit("receive_message",data);
+        
     });
     socket.on("disconnect",()=>{
         console.log("User Disconnected", socket.id);

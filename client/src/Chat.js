@@ -10,15 +10,17 @@ function Chat({socket,username,room}) {
     } catch(error){
         localStorage.setItem(username,JSON.stringify({"data" : []}));//初始化
     }
-    const [messageList, setMessageList] = useState(JSON.parse(localStorage.getItem(username))["data"]);
+    // const [messageList, setMessageList] = useState(JSON.parse(localStorage.getItem(username))["data"]);
+    const [messageList, setMessageList] = useState([]);
     const [currentMessage, setCurrentMessage] = useState("");
+    // const [lastMessageJ, setLastMessageJ] = useState("");
     // const otherplayer = (username === 'A' ? 'B':'A');
 
-    const upDate = (data) => {
-        let update_D = {"data" : [...messageList,data]};
-        const update_J = JSON.stringify(update_D);
-        localStorage.setItem(username,update_J);
-    };
+    // const upDate = (data) => {
+    //     let update_D = {"data" : [...messageList,data]};
+    //     const update_J = JSON.stringify(update_D);
+    //     localStorage.setItem(username,update_J);
+    // };
 
     const encode = (msg) => {
         let encode_Message = '';
@@ -92,7 +94,7 @@ function Chat({socket,username,room}) {
             // let update_D = {"data" : [...messageList,messageData]};
             // const update_J = JSON.stringify(update_D);
             // localStorage.setItem(username,update_J);
-            upDate(messageData);
+            // upDate(messageData);
 
             setCurrentMessage("");
         }
@@ -100,15 +102,34 @@ function Chat({socket,username,room}) {
 
     useEffect(() => {
         socket.on("receive_message",(data)=>{
+            // let Jdata = JSON.stringify({"data" : [data]});
+            // let strData = String(Jdata);
             // setMessageList(JSON.parse(localStorage.getItem("data"))[username]);});
             setMessageList((list)=>[...list,data]);
-            upDate(data);
+            // upDate(data);
+            console.log(1);
         });
             
             // let update_D = {"data" : [...messageList,data]};
             // const update_J = JSON.stringify(update_D);
             // localStorage.setItem(username,update_J);
     }, [socket]);
+    useEffect(()=>{
+        console.log(messageList, messageList.length);
+        if (messageList.length > 1){
+            let data = messageList;
+            for(var i = 0; i<messageList.length;i++){
+                let dataA = messageList[messageList.length-1];
+                let dataB = messageList[messageList.length-2];
+                console.log(dataA,dataB);
+                if(dataA['message'] === dataB['message'] && dataA['author'] === dataB['author']){
+                    data.pop(data.length-1);
+                }
+                else break;
+            setMessageList(data);
+            console.log(data);
+        }}
+    },[messageList])
 
     return (
         <div className="chat-window">
