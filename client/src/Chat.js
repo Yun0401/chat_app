@@ -5,33 +5,25 @@ import ScrollToBottom from "react-scroll-to-bottom";
 
 
 function Chat({socket,username,room}) {
-    try {
-        JSON.parse(localStorage.getItem(username))["data"].map(()=>{return 0});
-    } catch(error){
-        localStorage.setItem(username,JSON.stringify({"data" : []}));//初始化
-    }
-    // const [messageList, setMessageList] = useState(JSON.parse(localStorage.getItem(username))["data"]);
+    // try {
+    //     JSON.parse(localStorage.getItem(username))["data"].map(()=>{return 0});
+    // } catch(error){
+    //     localStorage.setItem(username,JSON.stringify({"data" : []}));//初始化
+    // }
+
     const [messageList, setMessageList] = useState([]);
     const [currentMessage, setCurrentMessage] = useState("");
-    // const [lastMessageJ, setLastMessageJ] = useState("");
-    // const otherplayer = (username === 'A' ? 'B':'A');
-
-    // const upDate = (data) => {
-    //     let update_D = {"data" : [...messageList,data]};
-    //     const update_J = JSON.stringify(update_D);
-    //     localStorage.setItem(username,update_J);
-    // };
 
     const encode = (msg) => {
         let encode_Message = '';
-        if (username === 'A'){
+        if (username === 'Player A'){
             for(let i=0;i<msg.length;i++){
                 let ch = msg[i];
                 let n = ch.charCodeAt()+2;//way
                 encode_Message += String.fromCharCode(n);
             }
         }
-        else if (username === 'B'){
+        else if (username === 'patient'){
             for(let i=0;i<msg.length;i++){
                 let ch = msg[i];
                 let n = ch.charCodeAt()-2;//way
@@ -53,23 +45,7 @@ function Chat({socket,username,room}) {
                 ":" +
                 new Date(Date.now()).getMinutes()
             };
-            //加密
-            // let encode_Message = '';
-            // if (username === 'A'){
-            //     for(let i=0;i<currentMessage.length;i++){
-            //         let ch = currentMessage[i];
-            //         let n = ch.charCodeAt()+2;//way
-            //         encode_Message += String.fromCharCode(n);
-            //     }
-            // }
-            // else if (username === 'B'){
-            //     for(let i=0;i<currentMessage.length;i++){
-            //         let ch = currentMessage[i];
-            //         let n = ch.charCodeAt()-2;//way
-            //         encode_Message += String.fromCharCode(n);
-            //     }
-            // }
-            // else encode_Message = currentMessage;
+            
             const encode_Message = encode(currentMessage);
 
             const otherData = {
@@ -80,21 +56,10 @@ function Chat({socket,username,room}) {
                 ":" +
                 new Date(Date.now()).getMinutes()
             };
-            // let update_D = {};
-            // update_D[username] =  [...JSON.parse(localStorage.getItem("data"))[username],messageData];
-            // update_D[otherplayer] =  [...JSON.parse(localStorage.getItem("data"))[otherplayer],otherData];
-            // const update_J = JSON.stringify(update_D);
-            // console.log(update_J);
-            // localStorage.setItem('data',update_J);
 
             await socket.emit("send_message",otherData);
 
             setMessageList((list) => [...list,messageData]);
-            //存在本地
-            // let update_D = {"data" : [...messageList,messageData]};
-            // const update_J = JSON.stringify(update_D);
-            // localStorage.setItem(username,update_J);
-            // upDate(messageData);
 
             setCurrentMessage("");
         }
@@ -102,18 +67,12 @@ function Chat({socket,username,room}) {
 
     useEffect(() => {
         socket.on("receive_message",(data)=>{
-            // let Jdata = JSON.stringify({"data" : [data]});
-            // let strData = String(Jdata);
-            // setMessageList(JSON.parse(localStorage.getItem("data"))[username]);});
+            if(username!==data.author){
             setMessageList((list)=>[...list,data]);
-            // upDate(data);
-            console.log(1);
+            console.log(1);}
         });
-            
-            // let update_D = {"data" : [...messageList,data]};
-            // const update_J = JSON.stringify(update_D);
-            // localStorage.setItem(username,update_J);
-    }, [socket]);
+    }, [socket,username]);
+    
     useEffect(()=>{
         console.log(messageList, messageList.length);
         if (messageList.length > 1){
